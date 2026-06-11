@@ -1,0 +1,97 @@
+model:
+  name: LRDP
+  in_channels: 1
+  base_channels: 16
+  channel_mults: [1, 2, 4, 8]
+  num_scales: 4
+  use_pyramid: true
+  use_initial_flow: true
+  use_diffusion_scales: [3, 4]
+  denoiser_type: swin
+  diffusion_timesteps: 1000
+  diffusion_sample_steps: 50
+  diffusion_beta_schedule: linear
+  latent_flow_channels: 16
+  flow_representation: displacement
+  use_diffeomorphic: false
+  composition_mode: warp
+
+spatial_transformer:
+  mode: bilinear
+  padding_mode: border
+  align_corners: true
+
+loss:
+  similarity: ncc
+  lambda_sim: 1.0
+  lambda_smooth: 0.01
+  lambda_jac: 0.0
+  lambda_diff: 0.01
+  lambda_multiscale: 0.0
+  ncc_window_size: 9
+  smooth_penalty: l2
+
+data:
+  dataset_name: OASIS
+  root: /data/TFBOYS/dataset/OASIS
+  split: train
+  image_glob: "*.nii.gz"
+  output_dir: /data/TFBOYS/dataset/OASIS/processed
+  label_suffix: "_seg"
+  mask_suffix: "_mask"
+  pair_strategy: atlas_to_subject
+  atlas_path: null
+  split_ratio: [0.7, 0.1, 0.2]
+  seed: 42
+
+preprocess:
+  target_shape: [160, 192, 160]
+  normalize: true
+  crop_foreground: true
+  use_mask: false
+  orientation: null
+  save_processed: true
+  overwrite_processed: false
+  save_processed_metadata: false
+
+augmentation:
+  train:
+    enable: false
+    gamma: true
+    brightness: true
+    contrast: true
+    noise: true
+    flip: false
+  val:
+    enable: false
+  test:
+    enable: false
+
+dataloader:
+  batch_size: 1
+  num_workers: 4
+  shuffle_train: true
+  pin_memory: true
+
+optimizer:
+  name: AdamW
+  lr: 0.0001
+  weight_decay: 0.00001
+
+training:
+  seed: 42
+  epochs: 20
+  save_dir: checkpoints
+  resume: null
+  device: auto
+  save_every: 1
+  print_every: 1
+
+inference:
+  checkpoint: null
+  split: test
+  output_dir: inference_outputs
+  batch_size: 1
+  num_workers: 2
+  device: auto
+  save_nifti: false

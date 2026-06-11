@@ -1,0 +1,44 @@
+base_config: lrdp_default.yaml
+active_ablation: null
+
+ablation_overrides:
+  no_diffusion:
+    model:
+      use_diffusion_scales: []
+
+  no_initial_flow:
+    model:
+      use_initial_flow: false
+
+  cnn_denoiser:
+    model:
+      denoiser_type: cnn
+
+  swin_denoiser:
+    model:
+      denoiser_type: swin
+
+  no_recursive_composition:
+    model:
+      composition_mode: add
+
+  diffusion_all_scales:
+    model:
+      use_diffusion_scales: [1, 2, 3, 4]
+
+  diffusion_coarse_only:
+    model:
+      use_diffusion_scales: [4]
+
+  no_augmentation:
+    augmentation:
+      train:
+        enable: false
+
+  subject_to_subject_pairs:
+    data:
+      pair_strategy: subject_to_subject
+
+  atlas_to_subject_pairs:
+    data:
+      pair_strategy: atlas_to_subject
