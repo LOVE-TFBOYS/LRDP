@@ -201,10 +201,12 @@ class LRDPRegistrationModel(nn.Module):
             )
             delta_phi4, diff4 = self.diffusion4(z_cond4, residual_target=residual_target4)
             diffusion_losses["scale4"] = diff4.get("loss") if diff4 else None
+            diffusion_losses["diff_loss4"] = diff4.get("loss") if diff4 else None
         else:
             residual_target4 = None
             delta_phi4 = self._zero_flow(f4)
             diffusion_losses["scale4"] = None
+            diffusion_losses["diff_loss4"] = None
         phi4 = self._compose(phi4_init, delta_phi4)
 
         # Scale 3:
@@ -227,10 +229,12 @@ class LRDPRegistrationModel(nn.Module):
             )
             delta_phi3, diff3 = self.diffusion3(z_cond3, residual_target=residual_target3)
             diffusion_losses["scale3"] = diff3.get("loss") if diff3 else None
+            diffusion_losses["diff_loss3"] = diff3.get("loss") if diff3 else None
         else:
             residual_target3 = None
             delta_phi3 = self._zero_flow(f3)
             diffusion_losses["scale3"] = None
+            diffusion_losses["diff_loss3"] = None
         phi3 = self._compose(phi3_pre, delta_phi3)
 
         # Scale 2:
@@ -254,6 +258,9 @@ class LRDPRegistrationModel(nn.Module):
             pass
         warped = self.transformer(moving, final_flow)
 
+        diff_values = [value for key, value in diffusion_losses.items() if key.startswith("scale") and value is not None]
+        diff_loss_total = torch.stack(diff_values).mean() if diff_values else None
+
         outputs = {
             "warped": warped,
             "flow": final_flow,
@@ -261,6 +268,15 @@ class LRDPRegistrationModel(nn.Module):
             "residual_flows": [delta_phi1, delta_phi2, delta_phi3, delta_phi4],
             "initial_flows": [None, None, phi3_init, phi4_init],
             "diffusion_losses": diffusion_losses,
+            "diffusion_enabled": len(self.use_diffusion_scales) > 0,
+            "diffusion_train_scales": sorted(self.use_diffusion_scales),
+            "losses": {
+                "diff": diff_loss_total,
+                "diff_loss_total": diff_loss_total,
+                "diff_loss4": diffusion_losses.get("diff_loss4"),
+                "diff_loss3": diffusion_losses.get("diff_loss3"),
+            },
+            "diff_loss": diff_loss_total,
         }
         if return_intermediates:
             outputs["features"] = {"fixed": fixed_feats, "moving": moving_feats}

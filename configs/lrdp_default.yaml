@@ -22,14 +22,23 @@ spatial_transformer:
   align_corners: true
 
 loss:
-  similarity: ncc
-  lambda_sim: 1.0
-  lambda_smooth: 0.01
-  lambda_jac: 0.0
-  lambda_diff: 0.01
-  lambda_multiscale: 0.0
+  similarity: mse
+  sim_weight: 1.0
+  smooth_weight: 0.05
+  jac_weight: 0.05
+  diff_weight: 0.01
+  ms_weight: 0.1
+  multi_scale:
+    enabled: true
+    scales: [4, 3, 2, 1]
+    weights: [0.4, 0.3, 0.2, 0.1]
   ncc_window_size: 9
   smooth_penalty: l2
+
+diffusion:
+  enabled: true
+  train_scales: [4, 3]
+  loss_type: l2
 
 data:
   dataset_name: OASIS
@@ -86,6 +95,15 @@ training:
   device: auto
   save_every: 1
   print_every: 1
+
+logging:
+  progress_bar: true
+  progress_leave: true
+  anomaly_check: true
+  anomaly_loss_threshold: 0.15
+  anomaly_sim_threshold: 0.15
+  save_val_anomalies: true
+  val_anomaly_csv: logs/val_anomalies.csv
 
 inference:
   checkpoint: null

@@ -33,5 +33,7 @@ def batch_dice_score(pred, target, include_background=False):
 
 
 def folding_ratio(flow):
+    """Ratio of non-positive Jacobian determinants, detJ <= 0."""
+
     jacobian = jacobian_determinant_3d(flow)
     return (jacobian <= 0).float().mean()

@@ -3,6 +3,8 @@ active_ablation: null
 
 ablation_overrides:
   no_diffusion:
+    diffusion:
+      enabled: false
     model:
       use_diffusion_scales: []
 

@@ -78,6 +78,8 @@ class PairRegistrationDataset(BaseRegistrationDataset):
         sample = {
             "fixed": to_tensor(fixed),
             "moving": to_tensor(moving),
+            "fixed_path": str(pair["fixed"]),
+            "moving_path": str(pair["moving"]),
             "fixed_id": fixed_meta.get("case_id", get_case_id(pair["fixed"])),
             "moving_id": moving_meta.get("case_id", get_case_id(pair["moving"])),
             "fixed_meta": fixed_meta,
