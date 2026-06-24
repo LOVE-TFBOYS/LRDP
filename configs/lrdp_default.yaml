@@ -3,6 +3,7 @@ model:
   in_channels: 1
   base_channels: 16
   channel_mults: [1, 2, 4, 8]
+  shared_encoder: true
   num_scales: 4
   use_pyramid: true
   use_initial_flow: true

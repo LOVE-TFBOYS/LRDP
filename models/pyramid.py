@@ -36,9 +36,11 @@ class FeaturePyramid3D(nn.Module):
                 for in_ch, out_ch in zip(self.in_channels, self.out_channels)
             ]
         )
+        # 平滑卷积模块列表
         self.smooth = nn.ModuleList(
             [ConvNormAct3D(ch, ch, kernel_size=3, norm=norm, activation=activation) for ch in self.out_channels]
         )
+        # 上采样模块列表
         self.top_down = nn.ModuleList(
             [
                 nn.Identity() if high_ch == low_ch else nn.Conv3d(high_ch, low_ch, kernel_size=1)

@@ -20,13 +20,16 @@ class SingleStreamEncoder3D(nn.Module):
         self,
         in_channels: int = 1,
         base_channels: int = 16,
-        channel_mults: Sequence[int] = (1, 2, 4, 8),
-        norm: str = "instance",
-        activation: str = "leaky_relu",
+        channel_mults: Sequence[int] = (1, 2, 4, 8), #每个尺度的通道倍率，默认配合base_channels = 16
+        norm: str = "instance", # 归一化方式
+        activation: str = "leaky_relu", # 激活函数
     ):
         super().__init__()
+        # 计算每个尺度的输出通道数
         self.channels = tuple(base_channels * mult for mult in channel_mults)
+        # 创建第一层特征提取模块
         self.stem = ConvBlock3D(in_channels, self.channels[0], norm=norm, activation=activation)
+        # 创建下采样模块
         self.down_blocks = nn.ModuleList(
             [
                 DownsampleBlock3D(self.channels[i - 1], self.channels[i], norm=norm, activation=activation)
@@ -60,8 +63,10 @@ class DualStreamEncoder3D(nn.Module):
         activation: str = "leaky_relu",
     ):
         super().__init__()
+        # 检查尺度数量是否与channel_mults长度一致
         if num_scales != len(channel_mults):
             raise ValueError("num_scales must match len(channel_mults)")
+        # 计算每个尺度的输出通道数
         self.out_channels = tuple(base_channels * mult for mult in channel_mults)
         self.fixed_encoder = SingleStreamEncoder3D(
             in_channels=in_channels,
@@ -70,6 +75,7 @@ class DualStreamEncoder3D(nn.Module):
             norm=norm,
             activation=activation,
         )
+        # 如果权重共享则使用一个编码器，如果不共享则重新创建一个编码器
         self.moving_encoder = (
             self.fixed_encoder
             if shared_encoder

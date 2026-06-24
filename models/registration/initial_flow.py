@@ -35,6 +35,7 @@ class InitialFlowNet3D(nn.Module):
             ConvNormAct3D(hidden_channels, hidden_channels, norm=norm, activation=activation),
             nn.Conv3d(hidden_channels, 3, 3, padding=1),
         )
+        # 初始化最后一层卷积权重
         nn.init.normal_(self.net[-1].weight, mean=0.0, std=1e-5)
         nn.init.zeros_(self.net[-1].bias)
 
